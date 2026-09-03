@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Consulta de Matrícula</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #eef1f4;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Cabeçalho dividido em duas metades (50% / 50%) */
+  .form-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 10px 8px;
+    border-bottom: 1px solid #ddd;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  /* Metade Esquerda: Formulário alinhado ao início */
+  .left-section {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 20px;
+  }
+
+  /* Metade Direita: Botões Auxiliares alinhados ao centro desta coluna com mais espaçamento */
+  .right-section {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* Zona Central Absoluta apenas com o Ecrã Inteiro */
+  .center-fullscreen-container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 11;
+  }
+
+  .input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  label {
+    font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  input {
+    padding: 8px;
+    font-size: 14px;
+    width: 125px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    outline: none;
+    transition: 0.3s;
+    text-transform: uppercase;
+  }
+  input:focus {
+    border-color: #00796b;
+    box-shadow: 0 0 4px rgba(0, 121, 107, 0.4);
+  }
+
+  /* Botão principal (Consultar) */
+  button {
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #00796b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+    white-space: nowrap;
+  }
+  button:hover {
+    background-color: #005b4f;
+  }
+
+  /* Novos Botões Auxiliares da Direita (Azul-Marinho Profissional) */
+  .aux-btn {
+    background-color: #0e70b6;
+  }
+  .aux-btn:hover {
+    background-color: #0d1b60;
+  }
+
+  .fullscreen-btn {
+    background-color: #008CBA;
+    padding: 8px 14px;
+    border-radius: 6px;
+  }
+  .fullscreen-btn:hover {
+    background-color: #007bb5;
+  }
+
+  /* Área Geral das Metades Inferiores */
+  .iframe-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 8px;
+    background: #fafafa;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  /* Contentores individuais para gerir o Spinner por trás da Iframe */
+  .iframe-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #f1f3f4;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: white;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Estilo do Spinner / Carregamento de Performance */
+  .loading-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa;
+    color: #5f6368;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 1;
+  }
+
+  .spinner {
+    width: 35px;
+    height: 35px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #00796b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 12px;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Toast de Notificação de Cópia - Atualizado para alinhar à Direita */
+  .toast-notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px; /* Alinhado ao lado direito */
+    background-color: #323232;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 99999;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateY(100px); /* Efeito de subir */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Responsividade para ecrãs pequenos */
+  @media (max-width: 1200px) {
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      gap: 15px;
+      padding: 15px;
+    }
+    .left-section, .right-section {
+      justify-content: center;
+      padding-left: 0;
+      width: 100%;
+    }
+    .center-fullscreen-container {
+      position: static;
+      transform: none;
+      margin: 5px 0;
+    }
+    .iframe-container {
+      grid-template-columns: 1fr;
+      top: 230px;
+    }
+  }
+
+  /* Modal styles (Versão Clássica) */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10000;
+  }
+  .modal-overlay.active {
+    visibility: visible;
+    opacity: 1;
+  }
+  .modal-content {
+    background: white;
+    padding: 25px 30px 5px 30px;
+    border-radius: 8px;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+  }
+  .modal-content h2 {
+    font-family: 'Georgia', serif;
+    color: #00796b;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .modal-content p {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    color: #333;
+    line-height: 1.8;
+    margin: 0 0 10px 0;
+    font-style: italic;
+    text-align: justify;
+  }
+  .modal-content button {
+    padding: 8px 18px;
+    background-color: #00796b;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .modal-content button:hover {
+    background-color: #00796b;
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+  }
+  
+  /* Área do Rodapé - Alinhamento à direita e margem inferior zerada */
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+    margin-bottom: 0px;
+    border-top: 1px solid #f1f1f1;
+    padding-top: 10px;
+    width: 100%;
+  }
+
+  /* Texto com tamanho 12px (atualizado no seu ficheiro), negrito e alinhado */
+  .popup-name {
+    font-weight: bold !important;
+    font-size: 12px !important;
+    color: #8e8a96;
+    margin: 0 !important;
+    text-align: right;
+    line-height: 1.2;
+    font-family: Arial, sans-serif;
+    letter-spacing: 0.8px;
+  }
+</style>
+<script>
+  let ultimaMatriculaPesquisada = "";
+
+  function formatMatricula(input) {
+    let value = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    let formattedValue = value.replace(/(.{2})(.{2})?(.*)/, (_, p1, p2, p3) =>
+      [p1, p2, p3].filter(Boolean).join('-')
+    );
+    input.value = formattedValue.substring(0, 8);
+  }
+
+  function formatMatriculaReboque(input) {
+    const siglas = [
+      'A', 'AN', 'AV', 'BE', 'BG', 'BR', 'C', 'CB', 'E', 'FA',
+      'GD', 'H', 'L', 'LE', 'M', 'P', 'PT', 'SA', 'SE', 'VC', 'VI', 'VR'
+    ];
+    
+    let value = input.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '');
+    let matchLetras = value.match(/^([A-Z]+)/);
+    
+    if (matchLetras) {
+      let letrasDigitadas = matchLetras[1];
+      let prefixoValido = siglas.some(sigla => sigla.startsWith(letrasDigitadas));
+      
+      if (!prefixoValido) {
+        value = value.substring(0, value.length - 1);
+        matchLetras = value.match(/^([A-Z]+)/);
+      }
+    }
+    
+    if (matchLetras) {
+      let siglaDefinitiva = matchLetras[1];
+      
+      if (!siglas.includes(siglaDefinitiva)) {
+        value = siglaDefinitiva;
+      } else {
+        let restante = value.substring(siglaDefinitiva.length).replace(/[^0-9]/g, '');
+        restante = restante.substring(0, 6);
+        
+        if (restante.length > 0) {
+          value = siglaDefinitiva + '-' + restante;
+        } else if (input.value.endsWith('-')) {
+          value = siglaDefinitiva + '-';
+        } else {
+          value = siglaDefinitiva;
+        }
+      }
+    } else {
+      value = '';
+    }
+    
+    input.value = value;
+  }
+
+  function mostrarLoading(frameId, overlayId) {
+    document.getElementById(overlayId).style.display = 'flex';
+    document.getElementById(frameId).style.zIndex = '1';
+  }
+
+  function occultarLoading(frameId, overlayId) {
+    document.getElementById(overlayId).style.display = 'none';
+    document.getElementById(frameId).style.zIndex = '2';
+  }
+
+  function submitConjunto(event) {
+    event.preventDefault();
+    
+    const inputVeiculo = document.getElementById('MatriculaVeiculo');
+    const inputReboque = document.getElementById('MatriculaReboque');
+    
+    const valVeiculo = inputVeiculo.value.trim();
+    const valReboque = inputReboque.value.trim();
+
+    if (!valVeiculo && !valReboque) {
+      alert("Por favor, introduza pelo menos uma matrícula.");
+      return;
+    }
+
+    if (valVeiculo && valReboque) {
+      mostrarLoading('veiculoFrame', 'veiculoLoading');
+      mostrarLoading('reboqueFrame', 'reboqueLoading');
+      document.getElementById('veiculoFrame').src = `http://consultapsp.imtt.external.rnsi.local/veiculos/consulta_inspecao.php?Matricula=${valVeiculo}`;
+      document.getElementById('reboqueFrame').src = `http://consultapsp.imtt.external.rnsi.local/veiculos/consulta_livrete.php?Matricula=${valReboque}`;
+      ultimaMatriculaPesquisada = valVeiculo;
+    } 
+    else if (valVeiculo && !valReboque) {
+      mostrarLoading('veiculoFrame', 'veiculoLoading');
+      mostrarLoading('reboqueFrame', 'reboqueLoading');
+      document.getElementById('veiculoFrame').src = `http://consultapsp.imtt.external.rnsi.local/veiculos/consulta_inspecao.php?Matricula=${valVeiculo}`;
+      document.getElementById('reboqueFrame').src = `http://consultapsp.imtt.external.rnsi.local/veiculos/consulta_livrete.php?Matricula=${valVeiculo}`;
+      ultimaMatriculaPesquisada = valVeiculo;
+    } 
+    else if (!valVeiculo && valReboque) {
+      mostrarLoading('veiculoFrame', 'veiculoLoading');
+      mostrarLoading('reboqueFrame', 'reboqueLoading');
+      document.getElementById('veiculoFrame').src = `http://consultapsp.imtt.external.rnsi.local/veiculos/consulta_inspecao.php?Matricula=${valReboque}`;
+      document.getElementById('reboqueFrame').src = `http://consultapsp.imtt.external.rnsi.local/veiculos/consulta_livrete.php?Matricula=${valReboque}`;
+      ultimaMatriculaPesquisada = valReboque;
+    }
+
+    inputVeiculo.value = '';
+    inputReboque.value = '';
+  }
+
+  function obterMatriculaOuVazia() {
+    return ultimaMatriculaPesquisada || "";
+  }
+
+  function copiarEVisualizar(texto) {
+    if (!texto) return;
+    navigator.clipboard.writeText(texto).then(() => {
+      const toast = document.getElementById('toastNotification');
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }).catch(err => {
+      console.log('Erro ao copiar matrícula: ', err);
+    });
+  }
+
+  function verificarSeguro() {
+    const mat = obterMatriculaOuVazia();
+    const url = `https://www.consumidor.asf.com.pt/servi%C3%A7os/verificar-seguro-atrav%C3%A9s-da-matr%C3%ADcula?matricula=${mat}`;
+    window.open(url, 'SeguroPopup', 'width=800,height=600,top=100,left=100,resizable=yes,scrollbars=yes');
+  }
+
+  function consultarIMTERRU() {
+    const mat = obterMatriculaOuVazia();
+    copiarEVisualizar(mat);
+    const url = `https://erru.imt-ip.pt/ERRU/`;
+    window.open(url, 'IMTERRUPopup', 'width=900,height=700,top=100,left=100,resizable=yes,scrollbars=yes');
+  }
+
+  function consultarINEM() {
+    const mat = obterMatriculaOuVazia();
+    copiarEVisualizar(mat);
+    const url = `https://alvaras.inem.pt/DMZ/ConsultaCertificado.aspx`;
+    window.open(url, 'INEMPopup', 'width=900,height=700,top=100,left=100,resizable=yes,scrollbars=yes');
+  }
+
+  function consultarWAZE() {
+    const url = `https://location.wazept.com/#/`;
+    window.open(url, 'WazePopup', 'width=900,height=700,top=100,left=100,resizable=yes,scrollbars=yes');
+  }
+
+  function toggleFullscreen() {
+    const doc = document.documentElement;
+    if (!document.fullscreenElement) {
+      doc.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  function showModal() {
+    document.getElementById('popupModal').classList.add('active');
+  }
+  function closeModal() {
+    document.getElementById('popupModal').classList.remove('active');
+  }
+
+  window.addEventListener('load', () => { showModal(); });
+  window.addEventListener('click', (e) => { if (e.target === document.getElementById('popupModal')) closeModal(); });
+</script>
+</head>
+<body>
+  <div id="toastNotification" class="toast-notification">Matrícula copiada!</div>
+
+  <div id="popupModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Bem-vindo!</h2>
+      <p>Caro(a) utilizador(a), a aplicação encontra-se disponível exclusivamente através da intranet.</p>
+      <div class="modal-buttons">
+        <button onclick="closeModal()">FECHAR</button>
+      </div>
+      <div class="modal-footer">
+        <p class="popup-name">Fábio Moço · GP2150375</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-container">
+    
+    <div class="left-section">
+      <form onsubmit="submitConjunto(event)" style="display: flex; gap: 15px; align-items: center;">
+        <div class="input-group">
+          <label for="MatriculaVeiculo">Veículo:</label>
+          <input type="text" id="MatriculaVeiculo" placeholder="11-AA-11" maxlength="8" oninput="formatMatricula(this)">
+        </div>
+
+        <div class="input-group">
+          <label for="MatriculaReboque">Reboque:</label>
+          <input type="text" id="MatriculaReboque" placeholder="L-121212" oninput="formatMatriculaReboque(this)">
+        </div>
+
+        <button type="submit">CONSULTAR</button>
+      </form>
+    </div>
+
+    <div class="center-fullscreen-container">
+      <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
+    </div>
+
+    <div class="right-section">
+      <button type="button" class="aux-btn" onclick="verificarSeguro()">SEGURO</button>
+      <button type="button" class="aux-btn" onclick="consultarIMTERRU()">IMT-ERRU</button>
+      <button type="button" class="aux-btn" onclick="consultarINEM()">INEM</button>
+      <button type="button" class="aux-btn" onclick="consultarWAZE()">WAZE</button>
+    </div>
+
+  </div>
+
+  <div class="iframe-container">
+    <div class="iframe-wrapper">
+      <div id="veiculoLoading" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        A carregar inspeção...
+      </div>
+      <iframe id="veiculoFrame" loading="lazy" onload="occultarLoading('veiculoFrame', 'veiculoLoading')"></iframe>
+    </div>
+
+    <div class="iframe-wrapper">
+      <div id="reboqueLoading" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        A carregar livrete...
+      </div>
+      <iframe id="reboqueFrame" loading="lazy" onload="occultarLoading('reboqueFrame', 'reboqueLoading')"></iframe>
+    </div>
+  </div>
+</body>
+</html>
