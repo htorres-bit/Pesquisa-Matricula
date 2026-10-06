@@ -40,17 +40,18 @@
     padding-left: 20px;
   }
 
-  /* Metade Direita: Botões Auxiliares alinhados ao centro desta coluna com mais espaçamento */
+  /* Metade Direita: Botões Auxiliares Centrados com a Frame Direita */
   .right-section {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
+    position: relative;
+    width: 100%;
   }
 
-  /* Zona Central Absoluta apenas com o Ecrã Inteiro */
-  .center-fullscreen-container {
+  /* Zona Central Absoluta: Estado do Seguro */
+  .center-status-container {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -73,7 +74,7 @@
   input {
     padding: 8px;
     font-size: 14px;
-    width: 125px;
+    width: 70px;
     border: 1px solid #ccc;
     border-radius: 6px;
     outline: none;
@@ -90,7 +91,7 @@
     padding: 8px 14px;
     font-size: 14px;
     font-weight: bold;
-    background-color: #00796b;
+    background-color: #3d63af;
     color: white;
     border: none;
     border-radius: 6px;
@@ -99,24 +100,82 @@
     white-space: nowrap;
   }
   button:hover {
-    background-color: #005b4f;
+    background-color: #0d1b60;
   }
 
-  /* Novos Botões Auxiliares da Direita (Azul-Marinho Profissional) */
+  /* Botões Auxiliares da Direita */
   .aux-btn {
-    background-color: #0e70b6;
+    background-color: #4e6df2;
   }
   .aux-btn:hover {
     background-color: #0d1b60;
   }
 
+  /* Indicador do Estado do Seguro com Fundo Colorido no Centro */
+  .seguro-status-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    padding: 3px 14px;
+    min-width: 160px;
+    height: 38px;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    border: 1px solid transparent;
+  }
+
+  /* Estados de Fundo */
+  .seguro-status-container.idle {
+    background-color: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+  .seguro-status-container.ok {
+    background-color: #00aa00; /* Verde Ativo */
+    border-color: #15803d;
+    color: #ffffff;
+  }
+  .seguro-status-container.no {
+    background-color: #dc2626; /* Vermelho Sem Seguro */
+    border-color: #b91c1c;
+    color: #ffffff;
+  }
+  .seguro-status-container.warn {
+    background-color: #d97706; /* Laranja/Amarelo Aviso e Aguardar */
+    border-color: #b45309;
+    color: #ffffff;
+  }
+
+  .seguro-badge {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1.1;
+    color: inherit;
+  }
+
+  .seguro-rate-info {
+    font-size: 9px;
+    margin-top: 1px;
+    white-space: nowrap;
+    font-weight: 600;
+    opacity: 0.95;
+    color: inherit;
+  }
+
+  /* Botão Ecrã Inteiro Fixado na Extremidade Direita */
   .fullscreen-btn {
-    background-color: #008CBA;
-    padding: 8px 14px;
+    position: absolute;
+    right: 15px;
+    background-color: #3d63af;
+    padding: 8px 12px;
     border-radius: 6px;
   }
   .fullscreen-btn:hover {
-    background-color: #007bb5;
+    background-color: #0d1b60;
   }
 
   /* Área Geral das Metades Inferiores */
@@ -183,11 +242,11 @@
     100% { transform: rotate(360deg); }
   }
 
-  /* Toast de Notificação de Cópia - Atualizado para alinhar à Direita */
+  /* Toast de Notificação de Cópia */
   .toast-notification {
     position: fixed;
     bottom: 30px;
-    right: 30px; /* Alinhado ao lado direito */
+    right: 30px;
     background-color: #323232;
     color: white;
     padding: 12px 24px;
@@ -197,7 +256,7 @@
     z-index: 99999;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     opacity: 0;
-    transform: translateY(100px); /* Efeito de subir */
+    transform: translateY(100px);
     transition: transform 0.3s ease, opacity 0.3s ease;
     pointer-events: none;
   }
@@ -218,12 +277,16 @@
     .left-section, .right-section {
       justify-content: center;
       padding-left: 0;
+      padding-right: 0;
       width: 100%;
     }
-    .center-fullscreen-container {
+    .center-status-container {
       position: static;
       transform: none;
       margin: 5px 0;
+    }
+    .fullscreen-btn {
+      position: static;
     }
     .iframe-container {
       grid-template-columns: 1fr;
@@ -231,7 +294,7 @@
     }
   }
 
-  /* Modal styles (Versão Clássica) */
+  /* Modal styles */
   .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -259,7 +322,7 @@
   }
   .modal-content h2 {
     font-family: 'Georgia', serif;
-    color: #00796b;
+    color: #3d63af;
     font-size: 24px;
     font-weight: 700;
     margin: 0 0 12px 0;
@@ -277,7 +340,7 @@
   }
   .modal-content button {
     padding: 8px 18px;
-    background-color: #00796b;
+    background-color: #3d63af;
     border: none;
     border-radius: 6px;
     color: white;
@@ -285,7 +348,7 @@
     cursor: pointer;
   }
   .modal-content button:hover {
-    background-color: #00796b;
+    background-color: #0d1b60;
   }
   .modal-buttons {
     display: flex;
@@ -294,7 +357,6 @@
     margin-top: 20px;
   }
   
-  /* Área do Rodapé - Alinhamento à direita e margem inferior zerada */
   .modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -305,7 +367,6 @@
     width: 100%;
   }
 
-  /* Texto com tamanho 12px (atualizado no seu ficheiro), negrito e alinhado */
   .popup-name {
     font-weight: bold !important;
     font-size: 12px !important;
@@ -319,6 +380,27 @@
 </style>
 <script>
   let ultimaMatriculaPesquisada = "";
+
+  // =========================================================================
+  // CONFIGURAÇÕES E CONSTANTES CONFIGURÁVEIS (ASF)
+  // =========================================================================
+  const ASF_TIMEOUT_MS = 12000;          // Timeout da requisição
+  const ASF_MIN_INTERVAL_MS = 8000;      // Intervalo mínimo entre requisições
+  const ASF_JANELA_SEG = 63;             // Janela de sliding window
+  const ASF_LIMITE_JANELA = 5;           // Máximo requisições na janela
+  const ASF_CACHE_TTL_MS = 600000;       // Cache 10 minutos (600.000ms)
+  const ASF_MAX_RETRIES = 3;             // Máximo retries
+  const ASF_BACKOFF_BASE_MS = 1000;      // Base backoff exponencial (1s, 2s, 4s)
+
+  // =========================================================================
+  // ESTADO DA APLICAÇÃO E RASTREAMENTO
+  // =========================================================================
+  const cacheConsultas = new Map();
+  const tentativasConsulta = new Map();  // Rastreamento de retries por matrícula
+  let historicoPedidos = [];
+  let ultimoPedidoT = 0;
+  let filaPromessas = Promise.resolve();
+  let seguroEmProcessamento = false;     // Flag para evitar novos pedidos de seguro enquanto decorre um
 
   function formatMatricula(input) {
     let value = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
@@ -382,7 +464,7 @@
   }
 
   function submitConjunto(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     
     const inputVeiculo = document.getElementById('MatriculaVeiculo');
     const inputReboque = document.getElementById('MatriculaReboque');
@@ -395,6 +477,7 @@
       return;
     }
 
+    // Atualiza sempre as inspeções nas iframes
     if (valVeiculo && valReboque) {
       mostrarLoading('veiculoFrame', 'veiculoLoading');
       mostrarLoading('reboqueFrame', 'reboqueLoading');
@@ -417,8 +500,223 @@
       ultimaMatriculaPesquisada = valReboque;
     }
 
+    // Consulta do seguro: Apenas se não houver já um pedido de seguro ativo
+    const matriculaParaSeguro = valVeiculo || valReboque;
+    if (matriculaParaSeguro) {
+      solicitarConsultaSeguro(matriculaParaSeguro);
+    } else {
+      setSeguroState('idle', 'SEGURO: N/A');
+    }
+
     inputVeiculo.value = '';
     inputReboque.value = '';
+  }
+
+  // =========================================================================
+  // LÓGICA DA CONSULTA DE SEGURO ASF
+  // =========================================================================
+  function sanitizarMatricula(mat) {
+    return String(mat || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  }
+
+  function setSeguroState(stateClass, badgeText) {
+    const containerEl = document.getElementById('seguroContainer');
+    const badgeEl = document.getElementById('seguroBadge');
+    if (containerEl) containerEl.className = `seguro-status-container ${stateClass}`;
+    if (badgeEl) badgeEl.textContent = badgeText;
+  }
+
+  function calcularAtrasoNecessario() {
+    if (ultimoPedidoT === 0) {
+      return 0;
+    }
+
+    const agora = Date.now();
+    historicoPedidos = historicoPedidos.filter(t => (agora - t) < ASF_JANELA_SEG * 1000);
+    
+    let atraso = 0;
+
+    const decorrido = agora - ultimoPedidoT;
+    if (decorrido < ASF_MIN_INTERVAL_MS) {
+      atraso = Math.max(atraso, ASF_MIN_INTERVAL_MS - decorrido);
+    }
+
+    if (historicoPedidos.length >= ASF_LIMITE_JANELA) {
+      const maisAntigo = historicoPedidos[0];
+      const esperaJanela = (maisAntigo + (ASF_JANELA_SEG * 1000)) - agora + 200;
+      atraso = Math.max(atraso, esperaJanela);
+    }
+
+    return Math.max(0, Math.ceil(atraso));
+  }
+
+  function atualizarWidgetStatus() {
+    const atraso = calcularAtrasoNecessario();
+    const statusEl = document.getElementById('rateStatus');
+    if (!statusEl) return;
+
+    if (atraso > 0) {
+      const segs = Math.ceil(atraso / 1000);
+      statusEl.textContent = `Aguarde ${segs}s`;
+    } else {
+      statusEl.textContent = `Pronto`;
+    }
+  }
+  setInterval(atualizarWidgetStatus, 500);
+
+  function solicitarConsultaSeguro(matDisplay) {
+    const matLimpa = sanitizarMatricula(matDisplay);
+    if (!matLimpa) return;
+
+    // Verificação de Cache (10 minutos)
+    const emCache = cacheConsultas.get(matLimpa);
+    if (emCache && (Date.now() - emCache.timestamp) < ASF_CACHE_TTL_MS) {
+      exibirResultadoSeguro(emCache.temSeguro, true);
+      return;
+    }
+
+    // Se já estiver uma consulta de seguro em curso, ignora novos pedidos de seguro
+    if (seguroEmProcessamento) {
+      console.log(`[ASF] Consulta de seguro para ${matLimpa} ignorada: já existe um pedido em processamento.`);
+      return;
+    }
+
+    // Reset ao contador de tentativas para esta matrícula
+    tentativasConsulta.set(matLimpa, 0);
+    seguroEmProcessamento = true;
+
+    filaPromessas = filaPromessas.then(async () => {
+      try {
+        await processarConsultaSeguroComCadencia(matLimpa);
+      } finally {
+        seguroEmProcessamento = false;
+      }
+    }).catch(() => {
+      seguroEmProcessamento = false;
+    });
+  }
+
+  // Executa a requisição física HTTP/XHR com timeout
+  async function efetuarPedidoHttpASF(url) {
+    if (typeof ActiveXObject !== 'undefined') {
+      const xhr = new ActiveXObject("WinHttp.WinHttpRequest.5.1");
+      xhr.open("POST", url, false);
+      xhr.setTimeouts(10000, 10000, ASF_TIMEOUT_MS, ASF_TIMEOUT_MS);
+      xhr.setRequestHeader("Accept", "application/json, text/plain, */*");
+      xhr.send(null);
+      return { status: xhr.Status, text: xhr.ResponseText };
+    } else {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), ASF_TIMEOUT_MS);
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json, text/plain, */*' },
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      const text = await res.text();
+      return { status: res.status, text: text };
+    }
+  }
+
+  // Função isolada: Trata exclusivamente a requisição HTTP e a validação do status
+  async function realizarConsultaASF(matLimpa) {
+    const hoje = new Date();
+    const yyyy = hoje.getFullYear();
+    const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+    const dd = String(hoje.getDate()).padStart(2, '0');
+    const dataHoje = `${yyyy}/${mm}/${dd}`;
+
+    const queryGQL = `mutation license { mobishoutEntry { noone { entry { licenseNumber(license: "${matLimpa}", date: "${dataHoje}") { nodes { id license } } } } } }`;
+    const url = `https://ext01.asf.com.pt/api/src/?query=${encodeURIComponent(queryGQL)}`;
+
+    const resposta = await efetuarPedidoHttpASF(url);
+    const httpStatus = resposta.status;
+    const responseText = resposta.text;
+
+    if (httpStatus === 429) {
+      throw new Error("Servidor ASF bloqueado por rate limit (HTTP 429)");
+    }
+    if (httpStatus === 403) {
+      throw new Error("Acesso proibido ao servidor ASF (HTTP 403)");
+    }
+    if (httpStatus < 200 || httpStatus >= 300) {
+      throw new Error(`Erro HTTP ${httpStatus}`);
+    }
+
+    const json = JSON.parse(responseText);
+    const mobishoutEntry = json?.data?.mobishoutEntry;
+
+    if (mobishoutEntry) {
+      const licenseNode = mobishoutEntry?.noone?.entry?.licenseNumber;
+      let temSeguro = false;
+      if (licenseNode && Array.isArray(licenseNode.nodes) && licenseNode.nodes.length > 0) {
+        temSeguro = licenseNode.nodes.some(n => n && n.license != null);
+      }
+      return temSeguro;
+    } else {
+      throw new Error("Resposta inválida ou vazia do servidor ASF");
+    }
+  }
+
+  // Função orquestradora: Gere o loop de retry com backoff exponencial e controlo de cadência
+  async function processarConsultaSeguroComCadencia(matLimpa) {
+    let tentativa = tentativasConsulta.get(matLimpa) || 0;
+    let ultimoErro = null;
+
+    while (tentativa <= ASF_MAX_RETRIES) {
+      let atraso = calcularAtrasoNecessario();
+      while (atraso > 0) {
+        setSeguroState('warn', 'A AGUARDAR');
+        await new Promise(r => setTimeout(r, Math.min(atraso, 1000)));
+        atraso = calcularAtrasoNecessario();
+      }
+
+      if (tentativa === 0) {
+        setSeguroState('warn', 'A VERIFICAR...');
+      } else {
+        setSeguroState('warn', `RETRY ${tentativa}/${ASF_MAX_RETRIES}`);
+        console.log(`[ASF] Tentativa ${tentativa}/${ASF_MAX_RETRIES} para a matrícula ${matLimpa}`);
+      }
+
+      const agora = Date.now();
+      ultimoPedidoT = agora;
+      historicoPedidos.push(agora);
+      atualizarWidgetStatus();
+
+      try {
+        const temSeguro = await realizarConsultaASF(matLimpa);
+        cacheConsultas.set(matLimpa, { timestamp: Date.now(), temSeguro });
+        exibirResultadoSeguro(temSeguro, false);
+        return; // Sucesso na consulta
+      } catch (err) {
+        ultimoErro = err;
+        console.warn(`[ASF] Falha na tentativa ${tentativa} (${matLimpa}):`, err.message);
+        tentativa++;
+        tentativasConsulta.set(matLimpa, tentativa);
+
+        if (tentativa <= ASF_MAX_RETRIES) {
+          // Backoff exponencial: 1s, 2s, 4s...
+          const atrasoBackoff = ASF_BACKOFF_BASE_MS * Math.pow(2, tentativa - 1);
+          await new Promise(r => setTimeout(r, atrasoBackoff));
+        }
+      }
+    }
+
+    // Esgotaram-se todas as tentativas
+    console.error(`[ASF] Todas as ${ASF_MAX_RETRIES} tentativas falharam para ${matLimpa}:`, ultimoErro);
+    setSeguroState('warn', 'INDISPONÍVEL');
+  }
+
+  function exibirResultadoSeguro(temSeguro, deCache) {
+    const sufixo = deCache ? ' (c)' : '';
+    if (temSeguro) {
+      setSeguroState('ok', 'SEGURO ATIVO' + sufixo);
+    } else {
+      setSeguroState('no', 'SEM SEGURO' + sufixo);
+    }
   }
 
   function obterMatriculaOuVazia() {
@@ -438,12 +736,6 @@
     });
   }
 
-  function verificarSeguro() {
-    const mat = obterMatriculaOuVazia();
-    const url = `https://www.consumidor.asf.com.pt/servi%C3%A7os/verificar-seguro-atrav%C3%A9s-da-matr%C3%ADcula?matricula=${mat}`;
-    window.open(url, 'SeguroPopup', 'width=800,height=600,top=100,left=100,resizable=yes,scrollbars=yes');
-  }
-
   function consultarIMTERRU() {
     const mat = obterMatriculaOuVazia();
     copiarEVisualizar(mat);
@@ -456,6 +748,13 @@
     copiarEVisualizar(mat);
     const url = `https://alvaras.inem.pt/DMZ/ConsultaCertificado.aspx`;
     window.open(url, 'INEMPopup', 'width=900,height=700,top=100,left=100,resizable=yes,scrollbars=yes');
+  }
+
+  function consultarASF() {
+    const mat = obterMatriculaOuVazia();
+    copiarEVisualizar(mat);
+    const url = `https://www.consumidor.asf.com.pt/servi%C3%A7os/verificar-seguro-atrav%C3%A9s-da-matr%C3%ADcula`;
+    window.open(url, 'ASFPopup', 'width=900,height=700,top=100,left=100,resizable=yes,scrollbars=yes');
   }
 
   function consultarWAZE() {
@@ -501,6 +800,7 @@
 
   <div class="form-container">
     
+    <!-- Esquerda: Formulário -->
     <div class="left-section">
       <form onsubmit="submitConjunto(event)" style="display: flex; gap: 15px; align-items: center;">
         <div class="input-group">
@@ -513,19 +813,25 @@
           <input type="text" id="MatriculaReboque" placeholder="L-121212" oninput="formatMatriculaReboque(this)">
         </div>
 
-        <button type="submit">CONSULTAR</button>
+        <button type="submit" id="btnSubmit">CONSULTAR</button>
       </form>
     </div>
 
-    <div class="center-fullscreen-container">
-      <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
+    <!-- Centro Absoluto: Indicador do Estado do Seguro -->
+    <div class="center-status-container">
+      <div id="seguroContainer" class="seguro-status-container idle">
+        <div id="seguroBadge" class="seguro-badge">SEGURO: —</div>
+        <div id="rateStatus" class="seguro-rate-info">Pronto</div>
+      </div>
     </div>
 
+    <!-- Direita: Botões Auxiliares -->
     <div class="right-section">
-      <button type="button" class="aux-btn" onclick="verificarSeguro()">SEGURO</button>
       <button type="button" class="aux-btn" onclick="consultarIMTERRU()">IMT-ERRU</button>
       <button type="button" class="aux-btn" onclick="consultarINEM()">INEM</button>
+      <button type="button" class="aux-btn" onclick="consultarASF()">ASF</button>
       <button type="button" class="aux-btn" onclick="consultarWAZE()">WAZE</button>
+      <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Ecrã Inteiro">⛶</button>
     </div>
 
   </div>
